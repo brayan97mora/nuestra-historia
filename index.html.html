@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestra Historia de Amor ❤️</title>
+
+    <!-- Meta etiquetas Open Graph para previsualización al compartir -->
+    <meta property="og:title" content="Un detalle especial para ti ❤️">
+    <meta property="og:description" content="Una carta digital interactiva para celebrar nuestra historia juntos.">
+    <meta property="og:type" content="website">
+
+    <!-- Tailwind CSS CDN para un diseño responsivo, fluido y elegante -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        burgundy: {
+                            DEFAULT: '#4A0E17',
+                            dark: '#32080E',
+                            light: '#6B1124',
+                        },
+                        roseDark: '#8C2D42',
+                        roseSoft: '#C25975',
+                        cream: {
+                            DEFAULT: '#FAF4EE',
+                            soft: '#F4E8DD',
+                        },
+                        gold: {
+                            DEFAULT: '#D4AF37',
+                            light: '#E6CA65',
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        cursive: ['Great Vibes', 'cursive']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Fuentes elegantes desde Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Canvas Confetti para el efecto de sorpresa final sin dependencias pesadas -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* Estilos base y transiciones suavizadas */
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #4A0E17;
+            color: #FAF4EE;
+            overflow-x: hidden;
+        }
+
+        .font-cursive {
+            font-family: 'Great Vibes', cursive;
+        }
+
+        .font-serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Fondo dinámico con gradiente romántico */
+        .bg-gradient-romantic {
+            background: linear-gradient(135deg, #32080E 0%, #4A0E17 50%, #6B1124 100%);
+        }
+
+        /* Animaciones para visibilidad con scroll */
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-on-scroll.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Respeto por preferencias de movimiento reducido */
+        @media (prefers-reduced-motion: reduce) {
+            .reveal-on-scroll {
+                opacity: 1 !important;
+                transform: none !important;
+                transition: none !important;
+            }
+            .animate-bounce, .animate-pulse, .pulse-glow {
+                animation: none !important;
+            }
+        }
+
+        /* Animación interactiva del sobre de la carta */
+        .envelope-wrapper {
+            perspective: 1000px;
+        }
+        .envelope {
+            position: relative;
+            width: 100%;
+            max-width: 380px;
+            height: 240px;
+            background: #8C2D42;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4), 0 0 15px rgba(212, 175, 55, 0.2);
+            margin: 0 auto;
+            transition: all 0.5s ease;
+        }
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 120px;
+            background: #6B1124;
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            transform-origin: top;
+            transition: transform 0.6s ease, z-index 0.2s ease;
+            z-index: 3;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+        .envelope-pocket {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 160px;
+            background: #8C2D42;
+            clip-path: polygon(0 100%, 100% 100%, 100% 20%, 50% 60%, 0 20%);
+            z-index: 2;
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+        .envelope-letter {
+            position: absolute;
+            bottom: 10px;
+            left: 5%;
+            width: 90%;
+            height: 200px;
+            background: #FAF4EE;
+            color: #4A0E17;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.8s ease 0.3s, opacity 0.5s ease;
+            z-index: 1;
+            opacity: 0.9;
+        }
+
+        /* Estado abierto del sobre */
+        .envelope.open .envelope-flap {
+            transform: rotateX(180deg);
+            z-index: 0;
+        }
+        .envelope.open .envelope-letter {
+            transform: translateY(-120px) scale(1.02);
+            z-index: 4;
+            opacity: 1;
+        }
+
+        /* Efecto polaroid para imágenes */
+        .polaroid-card {
+            background: #FAF4EE;
+            padding: 12px 12px 20px 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        .polaroid-card:hover {
+            transform: translateY(-8px) rotate(1deg);
+            box-shadow: 0 15px 30px rgba(212, 175, 55, 0.25);
+        }
+
+        /* Personalización de la barra de desplazamiento */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #32080E;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #8C2D42;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
+        }
+    </style>
+</head>
+<body class="bg-burgundy text-cream relative selection:bg-roseSoft selection:text-white">
+
+    <!-- Canvas de fondo para partículas brillantes -->
+    <canvas id="bg-particles" class="fixed inset-0 pointer-events-none z-0 opacity-40"></canvas>
+
+    <!-- REPRODUCTOR DE MÚSICA FLOTANTE -->
+    <div id="music-player" class="fixed top-4 right-4 z-50 flex items-center gap-2 bg-burgundy-dark/80 backdrop-blur-md border border-gold/30 px-3 py-2 rounded-full shadow-lg">
+        <button id="btn-play-pause" class="w-8 h-8 rounded-full bg-gold text-burgundy flex items-center justify-center font-bold hover:scale-105 transition-transform" aria-label="Reproducir o pausar música">
+            <span id="play-icon">▶</span>
+        </button>
+        <span id="music-status" class="text-xs text-cream/80 max-w-[100px] truncate hidden sm:inline">Música</span>
+        <button id="btn-mute" class="text-xs text-gold/80 hover:text-gold px-1" aria-label="Silenciar música">
+            🔊
+        </button>
+        <!-- Elemento Audio Silencioso por Defecto con Fallback Seguro -->
+        <audio id="audio-element" preload="none"></audio>
+    </div>
+
+    <!-- 1. PANTALLA DE BIENVENIDA (HERO) -->
+    <section id="welcome-screen" class="min-h-screen relative flex flex-col justify-center items-center text-center p-6 bg-gradient-romantic z-10">
+        <div class="max-w-md w-full space-y-8 animate-fade-in">
+            <div class="inline-block p-2 rounded-full border border-gold/30 bg-burgundy/40 backdrop-blur-sm mb-2">
+                <span class="text-2xl">✨</span>
+            </div>
+            
+            <h1 id="partner-name" class="font-serif-title text-4xl sm:text-6xl text-gold font-bold tracking-wide drop-shadow-md">
+                <!-- Inyectado por JS -->
+            </h1>
+            
+            <p class="text-lg sm:text-xl text-cream/90 font-light italic">
+                Preparé algo muy especial para ti...
+            </p>
+
+            <div class="pt-8">
+                <button id="btn-start" class="group relative inline-flex items-center justify-center px-8 py-4 text-base font-medium tracking-wide text-burgundy bg-gradient-to-r from-gold to-gold-light rounded-full shadow-xl hover:shadow-gold/30 hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 focus:ring-offset-burgundy">
+                    <span>Descubrir nuestra historia</span>
+                    <span class="ml-2 group-hover:translate-x-1 transition-transform">❤️</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Indicador visual para bajar -->
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 text-gold/60 text-sm animate-bounce flex flex-col items-center gap-1 opacity-0 transition-opacity duration-1000" id="scroll-indicator">
+            <span>Desliza hacia abajo</span>
+            <span>↓</span>
+        </div>
+    </section>
+
+    <!-- CONTENEDOR PRINCIPAL DE LA HISTORIA (Oculto inicialmente) -->
+    <main id="main-content" class="relative z-10 max-w-4xl mx-auto px-4 py-12 space-y-28 opacity-0 transition-opacity duration-1000 hidden">
+
+        <!-- 2. FRASE DE INTRODUCCIÓN -->
+        <section class="reveal-on-scroll text-center py-10 px-4 border-y border-gold/20 bg-burgundy-light/20 backdrop-blur-sm rounded-2xl shadow-inner">
+            <blockquote class="font-serif-title text-xl sm:text-2xl md:text-3xl italic text-cream/95 leading-relaxed">
+                "<span id="intro-message"><!-- Inyectado por JS --></span>"
+            </blockquote>
+        </section>
+
+        <!-- 3. GALERÍA DE FOTOS -->
+        <section class="reveal-on-scroll space-y-8">
+            <div class="text-center space-y-2">
+                <h2 class="font-serif-title text-3xl sm:text-4xl text-gold font-bold">Nuestros Momentos ❤️</h2>
+                <p class="text-sm text-cream/70 italic">Toca una fotografía para recordar la historia</p>
+            </div>
+
+            <!-- Grid de Fotos estilo Polaroid -->
+            <div id="photos-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 pt-4">
+                <!-- Tarjetas Inyectadas dinámicamente por JS -->
+            </div>
+        </section>
+
+        <!-- 4. NUESTRA HISTORIA (LINEA DE TIEMPO) -->
+        <section class="reveal-on-scroll space-y-8">
+            <div class="text-center space-y-2">
+                <h2 class="font-serif-title text-3xl sm:text-4xl text-gold font-bold">Un poquito de nuestra historia</h2>
+                <p class="text-sm text-cream/70 italic">Los capítulos más bonitos que hemos escrito</p>
+            </div>
+
+            <!-- Contenedor Timeline Vertical -->
+            <div class="relative border-l-2 border-gold/40 ml-4 sm:ml-32 space-y-10 py-4">
+                <div id="timeline-container">
+                    <!-- Eventos Inyectados dinámicamente por JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. CARTA PERSONAL -->
+        <section class="reveal-on-scroll space-y-8 text-center">
+            <div class="space-y-2">
+                <h2 class="font-serif-title text-3xl sm:text-4xl text-gold font-bold">Hay algo que quiero decirte...</h2>
+                <p class="text-sm text-cream/70 italic">Toca el botón para abrir tu carta especial</p>
+            </div>
+
+            <!-- Animación del Sobre Interactivo -->
+            <div class="envelope-wrapper py-8">
+                <div id="envelope" class="envelope">
+                    <div class="envelope-flap"></div>
+                    <div class="envelope-pocket"></div>
+                    <div class="envelope-letter flex items-center justify-center text-center">
+                        <p class="font-serif-title italic text-sm text-burgundy font-semibold">
+                            Escrito con todo mi amor...
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <button id="btn-open-letter" class="px-6 py-3 bg-roseDark hover:bg-roseSoft text-cream font-medium rounded-full shadow-lg border border-gold/30 hover:scale-105 transition-all">
+                    Abrir carta 💌
+                </button>
+            </div>
+
+            <!-- Modal / Despliegue Completo de la Carta -->
+            <div id="letter-modal" class="fixed inset-0 bg-burgundy-dark/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-500">
+                <div class="bg-cream text-burgundy max-w-xl w-full max-h-[85vh] overflow-y-auto p-6 sm:p-10 rounded-2xl shadow-2xl relative border-2 border-gold/40 my-auto">
+                    <button id="btn-close-letter" class="absolute top-4 right-4 text-burgundy/60 hover:text-burgundy text-2xl font-bold w-8 h-8 rounded-full bg-burgundy/10 flex items-center justify-center">
+                        ✕
+                    </button>
+                    <div class="space-y-6 text-left">
+                        <div class="text-center border-b border-burgundy/20 pb-4">
+                            <span class="font-cursive text-4xl text-roseDark">Para ti</span>
+                        </div>
+                        <div id="letter-content" class="prose text-burgundy/90 leading-relaxed text-base sm:text-lg space-y-4 font-serif">
+                            <!-- Inyectado por JS -->
+                        </div>
+                        <div class="text-right pt-4 border-t border-burgundy/20">
+                            <p class="font-cursive text-3xl text-roseDark">Siempre tuyo/a ❤️</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. MOMENTOS ESPECIALES -->
+        <section class="reveal-on-scroll space-y-8">
+            <div class="text-center space-y-2">
+                <h2 class="font-serif-title text-3xl sm:text-4xl text-gold font-bold">Detalles & Recuerdos</h2>
+                <p class="text-sm text-cream/70 italic">Pequeñas cosas que hacen grande lo nuestro</p>
+            </div>
+
+            <div id="memories-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Tarjetas Interactivas Inyectadas por JS -->
+            </div>
+        </section>
+
+        <!-- 7. CONTADOR DE TIEMPO -->
+        <section class="reveal-on-scroll text-center py-10 px-6 bg-gradient-to-b from-burgundy-light/30 to-burgundy-dark/50 border border-gold/20 rounded-3xl space-y-6 shadow-xl">
+            <h2 class="font-serif-title text-2xl sm:text-3xl text-gold font-bold">Desde que comenzó nuestra historia...</h2>
+            
+            <!-- Grid del Contador -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto">
+                <div class="bg-burgundy-dark/60 border border-gold/30 p-4 rounded-xl">
+                    <span id="count-years" class="block font-serif-title text-3xl sm:text-4xl font-bold text-gold">0</span>
+                    <span class="text-xs sm:text-sm text-cream/80">Años</span>
+                </div>
+                <div class="bg-burgundy-dark/60 border border-gold/30 p-4 rounded-xl">
+                    <span id="count-months" class="block font-serif-title text-3xl sm:text-4xl font-bold text-gold">0</span>
+                    <span class="text-xs sm:text-sm text-cream/80">Meses</span>
+                </div>
+                <div class="bg-burgundy-dark/60 border border-gold/30 p-4 rounded-xl">
+                    <span id="count-days" class="block font-serif-title text-3xl sm:text-4xl font-bold text-gold">0</span>
+                    <span class="text-xs sm:text-sm text-cream/80">Días</span>
+                </div>
+                <div class="bg-burgundy-dark/60 border border-gold/30 p-4 rounded-xl">
+                    <span id="count-hours" class="block font-serif-title text-3xl sm:text-4xl font-bold text-gold">0</span>
+                    <span class="text-xs sm:text-sm text-cream/80">Horas</span>
+                </div>
+            </div>
+
+            <p id="total-days-text" class="text-sm text-cream/80 italic pt-2">
+                Cargando tiempo compartido...
+            </p>
+        </section>
+
+        <!-- 8. SORPRESA FINAL -->
+        <section class="reveal-on-scroll text-center py-12 space-y-6">
+            <p class="text-lg text-cream/90 italic max-w-md mx-auto">
+                Y esto es apenas una pequeña parte de todo lo que hemos vivido y nos falta por vivir...
+            </p>
+
+            <div>
+                <button id="btn-final-surprise" class="px-8 py-4 bg-gradient-to-r from-gold to-gold-light text-burgundy font-bold text-lg rounded-full shadow-xl hover:scale-105 hover:shadow-gold/40 transition-all duration-300">
+                    Hay una última cosa... ✨
+                </button>
+            </div>
+
+            <!-- Revelación del Mensaje Final -->
+            <div id="final-message-container" class="hidden opacity-0 transition-all duration-1000 max-w-lg mx-auto bg-burgundy-light/40 border-2 border-gold p-8 rounded-2xl shadow-2xl space-y-4">
+                <span class="text-4xl">💖</span>
+                <p id="final-message-text" class="font-serif-title text-xl sm:text-2xl text-cream leading-relaxed italic">
+                    <!-- Inyectado por JS -->
+                </p>
+                <div class="pt-2 text-gold font-cursive text-3xl">
+                    ¡Gracias por estar en mi vida!
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER DISCRETO -->
+        <footer class="text-center text-xs text-cream/40 pt-12 pb-6">
+            Hecho con ❤️ para ti
+        </footer>
+    </main>
+
+    <!-- LIGHTBOX MODAL PARA FOTOGRAFÍAS -->
+    <div id="photo-modal" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <button id="btn-close-photo" class="absolute top-4 right-4 text-white text-3xl font-bold w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/40">
+            ✕
+        </button>
+        <div class="max-w-3xl w-full bg-cream text-burgundy rounded-xl overflow-hidden shadow-2xl">
+            <img id="modal-img" src="" alt="" class="w-full max-h-[60vh] object-contain bg-black">
+            <div class="p-6 space-y-2">
+                <div class="flex justify-between items-baseline">
+                    <h3 id="modal-title" class="font-serif-title text-xl font-bold text-burgundy"></h3>
+                    <span id="modal-date" class="text-xs text-roseDark font-semibold"></span>
+                </div>
+                <p id="modal-desc" class="text-sm text-burgundy/80 leading-relaxed"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =========================================================================
+        // PERSONALIZA TU EXPERIENCIA AQUÍ
+        // Reemplaza los datos a continuación para adaptar la página a tu pareja.
+        // =========================================================================
+
+        const CONFIG = {
+            partnerName: "Mi Amor", // Nombre de tu pareja
+            startDate: "2023-02-14T00:00:00", // Fecha en formato AAAA-MM-DD
+            introMessage: "Entre tantas personas, tantos lugares y tantos días... qué bonito que nuestras historias hayan terminado encontrándose.",
+            finalMessage: "Eres mi persona favorita en el mundo entero. Gracias por cada sonrisa, cada abrazo y por hacer que cada día sea más bonito. Te amo.",
+            letterText: `Querido/a [Nombre de tu pareja],<br><br>
+            Hoy quería tomarme un momento para recordar todo lo que hemos construido juntos. A veces la rutina avanza rápido, pero detenerse a mirar hacia atrás me recuerda lo afortunado/a que soy de tenerte a mi lado.<br><br>
+            Gracias por tu paciencia, por tus risas compartidas y por convertir los momentos simples en recuerdos inolvidables. Esta pequeña página es solo un reflejo de todo el amor que te tengo.<br><br>
+            Espero seguir caminando juntos y escribir muchos capítulos más en nuestra historia.`,
+            musicPath: "audio/cancion.mp3" // Archivo local en carpeta /audio
+        };
+
+        const photos = [
+            {
+                image: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=800&q=80",
+                title: "Nuestro Primer Recuerdo",
+                date: "Febrero 2023",
+                description: "Una tarde inolvidable donde supimos que esto era especial."
+            },
+            {
+                image: "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=800&q=80",
+                title: "Nuestro Primer Viaje",
+                date: "Julio 2023",
+                description: "Escape perfecto para descubrir nuevos lugares juntos."
+            },
+            {
+                image: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=800&q=80",
+                title: "Un Atardecer Especial",
+                date: "Noviembre 2023",
+                description: "Simplemente contemplando el paisaje y conversando de todo."
+            }
+        ];
+
+        const timeline = [
+            {
+                date: "Inicio de 2023",
+                title: "El día que nos conocimos",
+                description: "Un encuentro inesperado que cambió todo para bien."
+            },
+            {
+                date: "Mediados de 2023",
+                title: "Primer viaje juntos",
+                description: "Lleno de risas, fotos desastrosas y momentos perfectos."
+            },
+            {
+                date: "2024 - Presente",
+                title: "Creciendo día a día",
+                description: "Superando retos y celebrando cada logro como un equipo."
+            }
+        ];
+
+        const memories = [
+            {
+                icon: "❤️",
+                title: "La primera vez que...",
+                text: "Dijimos lo mucho que nos importábamos sin importar el qué dirán."
+            },
+            {
+                icon: "😂",
+                title: "Esa risa inolvidable...",
+                text: "Cuando no podíamos parar de reírnos por aquel pequeño malentendido."
+            },
+            {
+                icon: "🌎",
+                title: "Nuestro lugar favorito...",
+                text: "Ese rincón tranquilo donde el tiempo parece detenerse."
+            },
+            {
+                icon: "🥰",
+                title: "Lo que más amo de ti...",
+                text: "Tu capacidad para alegrar cualquier día difícil con una sonrisa."
+            }
+        ];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // 1. Cargar Configuración Básica
+            document.getElementById("partner-name").textContent = CONFIG.partnerName;
+            document.getElementById("intro-message").textContent = CONFIG.introMessage;
+            document.getElementById("letter-content").innerHTML = CONFIG.letterText;
+            document.getElementById("final-message-text").textContent = CONFIG.finalMessage;
+
+            // 2. Renderizar Galerías y Timeline
+            renderPhotos();
+            renderTimeline();
+            renderMemories();
+
+            // 3. Inicializar Contador de Tiempo
+            startCounter();
+
+            // 4. Configurar Reproductor de Música Opcional
+            setupAudio();
+
+            // 5. Configurar Scroll Interactivo y Observador
+            setupScrollObserver();
+
+            // 6. Efecto de fondo
+            initParticleCanvas();
+        });
+
+        // ==========================================
+        // FUNCIONES DE RENDERIZADO
+        // ==========================================
+
+        function renderPhotos() {
+            const container = document.getElementById("photos-grid");
+            container.innerHTML = photos.map((p, index) => `
+                <div class="polaroid-card rounded-lg cursor-pointer transform hover:-rotate-1 transition-all" onclick="openPhotoModal(${index})">
+                    <div class="h-48 sm:h-56 w-full overflow-hidden rounded mb-3 bg-burgundy-dark/20">
+                        <img src="${p.image}" alt="${p.title}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" loading="lazy" onerror="this.src='https://placehold.co/600x400/4A0E17/FAF4EE?text=Foto+Especial'">
+                    </div>
+                    <div class="text-burgundy space-y-1">
+                        <h3 class="font-serif-title font-bold text-base line-clamp-1">${p.title}</h3>
+                        <p class="text-xs text-roseDark font-semibold">${p.date}</p>
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        function renderTimeline() {
+            const container = document.getElementById("timeline-container");
+            container.innerHTML = timeline.map(item => `
+                <div class="relative pl-6 sm:pl-8">
+                    <!-- Punto conector dorado -->
+                    <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-gold border-4 border-burgundy shadow-md"></div>
+                    <div class="bg-burgundy-light/20 border border-gold/20 p-5 rounded-2xl space-y-1 shadow-md">
+                        <span class="text-xs font-semibold text-gold tracking-wider uppercase">${item.date}</span>
+                        <h3 class="font-serif-title text-lg font-bold text-cream">${item.title}</h3>
+                        <p class="text-sm text-cream/80 leading-relaxed">${item.description}</p>
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        function renderMemories() {
+            const container = document.getElementById("memories-grid");
+            container.innerHTML = memories.map(m => `
+                <div class="bg-burgundy-light/30 border border-gold/20 p-5 rounded-2xl hover:border-gold/50 transition-all cursor-pointer group" onclick="this.classList.toggle('bg-burgundy-light/60')">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="text-2xl group-hover:scale-125 transition-transform">${m.icon}</span>
+                        <h3 class="font-serif-title font-bold text-gold text-base">${m.title}</h3>
+                    </div>
+                    <p class="text-sm text-cream/90 leading-relaxed">${m.text}</p>
+                </div>
+            `).join("");
+        }
+
+        // ==========================================
+        // PANTALLA DE BIENVENIDA Y TRANSICIÓN
+        // ==========================================
+        document.getElementById("btn-start").addEventListener("click", () => {
+            const welcomeScreen = document.getElementById("welcome-screen");
+            const mainContent = document.getElementById("main-content");
+            const scrollIndicator = document.getElementById("scroll-indicator");
+
+            welcomeScreen.classList.add("transition-all", "duration-1000", "opacity-0");
+            
+            setTimeout(() => {
+                welcomeScreen.style.display = "none";
+                mainContent.classList.remove("hidden");
+                
+                // Truncar opacidad para transición suave
+                setTimeout(() => {
+                    mainContent.classList.remove("opacity-0");
+                    scrollIndicator.classList.remove("opacity-0");
+                    
+                    // Iniciar audio si la política del navegador lo permite
+                    const audio = document.getElementById("audio-element");
+                    if (audio.src) {
+                        audio.play().catch(() => {
+                            console.log("Autoplay bloqueado por el navegador. El usuario puede usar el botón flotante.");
+                        });
+                    }
+                }, 100);
+            }, 1000);
+        });
+
+        // LÓGICA SOBRE Y CARTA
+        const btnOpenLetter = document.getElementById("btn-open-letter");
+        const envelope = document.getElementById("envelope");
+        const letterModal = document.getElementById("letter-modal");
+        const btnCloseLetter = document.getElementById("btn-close-letter");
+
+        btnOpenLetter.addEventListener("click", () => {
+            envelope.classList.add("open");
+            setTimeout(() => {
+                letterModal.classList.remove("hidden");
+                setTimeout(() => letterModal.classList.remove("opacity-0"), 50);
+            }, 1000);
+        });
+
+        btnCloseLetter.addEventListener("click", () => {
+            letterModal.classList.add("opacity-0");
+            setTimeout(() => {
+                letterModal.classList.add("hidden");
+                envelope.classList.remove("open");
+            }, 500);
+        });
+
+        // LÓGICA LIGHTBOX FOTOS
+        function openPhotoModal(index) {
+            const photo = photos[index];
+            document.getElementById("modal-img").src = photo.image;
+            document.getElementById("modal-title").textContent = photo.title;
+            document.getElementById("modal-date").textContent = photo.date;
+            document.getElementById("modal-desc").textContent = photo.description;
+
+            const modal = document.getElementById("photo-modal");
+            modal.classList.remove("hidden");
+            setTimeout(() => modal.classList.remove("opacity-0"), 50);
+        }
+
+        document.getElementById("btn-close-photo").addEventListener("click", () => {
+            const modal = document.getElementById("photo-modal");
+            modal.classList.add("opacity-0");
+            setTimeout(() => modal.classList.add("hidden"), 300);
+        });
+
+        // ==========================================
+        // CÁLCULO DEL CONTADOR DE TIEMPO
+        // ==========================================
+        function startCounter() {
+            const start = new Date(CONFIG.startDate).getTime();
+
+            function update() {
+                const now = new Date().getTime();
+                const diff = Math.max(0, now - start);
+
+                const seconds = Math.floor(diff / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const hours = Math.floor(minutes / 60);
+                const daysTotal = Math.floor(hours / 24);
+
+                // Cálculo aproximado de años, meses y días restantes
+                const years = Math.floor(daysTotal / 365);
+                const months = Math.floor((daysTotal % 365) / 30);
+                const days = Math.floor((daysTotal % 365) % 30);
+                const remainingHours = hours % 24;
+
+                document.getElementById("count-years").textContent = years;
+                document.getElementById("count-months").textContent = months;
+                document.getElementById("count-days").textContent = days;
+                document.getElementById("count-hours").textContent = remainingHours;
+
+                document.getElementById("total-days-text").textContent = 
+                    `¡Eso equivale a un total de ${daysTotal.toLocaleString()} días compartiendo juntos! ❤️`;
+            }
+
+            update();
+            setInterval(update, 1000 * 60); // Actualizar cada minuto
+        }
+
+        // ==========================================
+        // SORPRESA FINAL & EFECTOS
+        // ==========================================
+        document.getElementById("btn-final-surprise").addEventListener("click", () => {
+            const container = document.getElementById("final-message-container");
+            container.classList.remove("hidden");
+            setTimeout(() => container.classList.remove("opacity-0"), 50);
+
+            // Lanzar partículas/corazones usando canvas-confetti
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.7 },
+                    colors: ['#D4AF37', '#8C2D42', '#FAF4EE', '#E6CA65']
+                });
+            }
+        });
+
+        // ==========================================
+        // REPRODUCTOR DE AUDIO
+        // ==========================================
+        function setupAudio() {
+            const audio = document.getElementById("audio-element");
+            const btnPlayPause = document.getElementById("btn-play-pause");
+            const playIcon = document.getElementById("play-icon");
+            const btnMute = document.getElementById("btn-mute");
+            const musicStatus = document.getElementById("music-status");
+
+            if (CONFIG.musicPath) {
+                audio.src = CONFIG.musicPath;
+            }
+
+            btnPlayPause.addEventListener("click", () => {
+                if (!audio.src) return;
+                if (audio.paused) {
+                    audio.play().then(() => {
+                        playIcon.textContent = "⏸";
+                        musicStatus.textContent = "Sonando";
+                    }).catch(err => {
+                        console.warn("No se pudo reproducir la música local:", err);
+                        musicStatus.textContent = "Sin audio";
+                    });
+                } else {
+                    audio.pause();
+                    playIcon.textContent = "▶";
+                    musicStatus.textContent = "Pausado";
+                }
+            });
+
+            btnMute.addEventListener("click", () => {
+                audio.muted = !audio.muted;
+                btnMute.textContent = audio.muted ? "🔇" : "🔊";
+            });
+
+            // Manejo silencioso de error en caso de no encontrar audio local
+            audio.addEventListener("error", () => {
+                musicStatus.textContent = "Opcional";
+            });
+        }
+
+        // ==========================================
+        // ANIMACIONES AL HACER SCROLL
+        // ==========================================
+        function setupScrollObserver() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("active");
+                    }
+                });
+            }, { threshold: 0.15 });
+
+            document.querySelectorAll(".reveal-on-scroll").forEach(el => observer.observe(el));
+        }
+
+        // ==========================================
+        // FONDO DE PARTÍCULAS DORADAS / ROSAS
+        // ==========================================
+        function initParticleCanvas() {
+            const canvas = document.getElementById("bg-particles");
+            const ctx = canvas.getContext("2d");
+
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            window.addEventListener("resize", () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            const particles = Array.from({ length: 35 }, () => ({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                radius: Math.random() * 2 + 1,
+                color: Math.random() > 0.5 ? '#D4AF37' : '#C25975',
+                alpha: Math.random() * 0.6 + 0.2,
+                speedY: Math.random() * 0.4 + 0.1
+            }));
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                particles.forEach(p => {
+                    p.y -= p.speedY;
+                    if (p.y < 0) p.y = height;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = p.alpha;
+                    ctx.fill();
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+    </script>
+</body>
+</html>
